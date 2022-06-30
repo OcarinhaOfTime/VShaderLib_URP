@@ -1,5 +1,5 @@
-#ifndef TOON_LIGHTING_INCLUDED
-#define TOON_LIGHTING_INCLUDED
+#ifndef CUSTOM_LIGHTING_INCLUDED
+#define CUSTOM_LIGHTING_INCLUDED
 
 struct CustomLightingData{
     //mesh data
@@ -24,6 +24,9 @@ float GetSmoothnessPower(float rawSmoothness){
 }
 
 #ifndef SHADERGRAPH_PREVIEW
+float3 Bandify(float3 i, int bands){
+    return floor(pow(i, 2) * bands) / bands;
+}
 
 float3 CustomGlobalIllumination(CustomLightingData d){
     float3 indirectDiff = d.albedo * d.bakedGI * d.ambientOcclusion;
@@ -36,12 +39,15 @@ float3 CustomGlobalIllumination(CustomLightingData d){
     return indirectDiff + indirectSpec * 5;
 }
 
+//toon lighting
 float3 CustomLightHandling(CustomLightingData d, Light light){
     float3 radiance = light.color * light.shadowAttenuation * light.distanceAttenuation;
     float3 diffuse = saturate(dot(d.normalWS, light.direction));
+    diffuse = Bandify(diffuse, 3);
     
     float specDot = saturate(dot(d.normalWS, normalize(light.direction + d.viewDir)));
     float3 spec = pow(specDot, GetSmoothnessPower(d.smoothness)) * diffuse;
+    spec = Bandify(spec, 3);
 
     float3 color = d.albedo * radiance * (diffuse + spec);
 
