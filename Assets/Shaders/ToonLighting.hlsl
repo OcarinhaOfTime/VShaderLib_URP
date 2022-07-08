@@ -43,7 +43,7 @@ float3 CustomGlobalIllumination(CustomLightingData d){
 float3 CustomLightHandling(CustomLightingData d, Light light){
     float3 radiance = light.color * light.shadowAttenuation * light.distanceAttenuation;
     float3 diffuse = saturate(dot(d.normalWS, light.direction));
-    diffuse = Bandify(diffuse, 3);
+    diffuse = Bandify(diffuse, 3) * .8;
     
     float specDot = saturate(dot(d.normalWS, normalize(light.direction + d.viewDir)));
     float3 spec = pow(specDot, GetSmoothnessPower(d.smoothness)) * diffuse;
